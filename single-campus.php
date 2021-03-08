@@ -16,10 +16,10 @@ while (have_posts()) {
          * get_post_type_archive_link retrieves the link for the post type
          * and doesn't rely on hard coding in case the slug changes later
          */
-        $eventsArchiveLink = get_post_type_archive_link('program');
+        $eventsArchiveLink = get_post_type_archive_link('campus');
         ?>
         <a class="metabox__blog-home-link" href="<?= $eventsArchiveLink ?>">
-          <i class="fa fa-home" aria-hidden="true"></i> All Programs
+          <i class="fa fa-home" aria-hidden="true"></i> All Campuses
         </a>
         <span class="metabox__main"><?php the_title() ?></span>
       </p>
@@ -28,27 +28,35 @@ while (have_posts()) {
       <?php the_content() ?>
     </div>
 
+    <div class="acf-map">
+      <?php $map_location = get_field('map_location'); ?>
+      <div class="marker" data-lat="<?php echo $map_location['lat'] ?>" data-lng="<?php echo $map_location['lng'] ?>">
+        <h3><?php the_title() ?></h3>
+        <?php echo $map_location['address'] ?>
+      </div>
+    </div>
+
 
     <?php
     /**
-     * Query the Professors post type to find 
+     * Query the programs post type to find 
      * ones related to the current program.
      */
-    $relatedProfessors = new WP_Query(array(
+    $relatedPrograms = new WP_Query(array(
       'posts_per_page' => -1,
-      'post_type' => 'professor',
+      'post_type' => 'program',
       'orderby' => 'title',
       'order' => 'ASC',
       'meta_query' => array(
         /**
-         * Only get professors that have related_programs 
+         * Only get programs that have related_campuses 
          * like the current program
          */
         array(
-          'key' => 'related_programs',
+          'key' => 'related_campuses',
           'compare' => 'LIKE',
           /**
-           * Related programs will be serialized array 
+           * Related campuses will be serialized array 
            * with quoted values so the target search 
            * value needs to have double quotes
            */
@@ -57,21 +65,20 @@ while (have_posts()) {
       )
     ));
 
-    if ($relatedProfessors->have_posts()) {
+    if ($relatedPrograms->have_posts()) {
       echo '<hr class="section-break">';
-      echo '<h2 class="headline headline--medium">' . get_the_title() . ' Professors</h2>';
+      echo '<h2 class="headline headline--medium">Programs Available at this Campus</h2>';
       echo '<ul class="professor-cards">';
-      while ($relatedProfessors->have_posts()) {
-        $relatedProfessors->the_post(); ?>
+      while ($relatedPrograms->have_posts()) {
+        $relatedPrograms->the_post(); ?>
 
-        <li class="professor-card__list-item">
-          <a class="professor-card" href="<?php the_permalink() ?>">
-            <img src="<?php the_post_thumbnail_url('professorLandscape') ?>" alt="" class="professor-card__image">
-            <span class="professor-card__name"><?php the_title() ?></span>
+        <li>
+          <a href="<?php the_permalink() ?>">
+            <?php the_title() ?>
           </a>
         </li>
 
-      <?php }
+    <?php }
       echo '</ul>';
     }
 
@@ -83,10 +90,10 @@ while (have_posts()) {
 
     /**
      * Query the Events post type to find 
-     * ones related to the current program.
+     * ones related to the current campus.
      */
     $today = date('Ymd');
-    $programRelatedEvents = new WP_Query(array(
+    $campusRelatedEvents = new WP_Query(array(
       'posts_per_page' => -1,
       'post_type' => 'event',
       'orderby' => 'meta_value_num', // Says we're ordering by a non-core value
@@ -107,7 +114,7 @@ while (have_posts()) {
          * like the current program
          */
         array(
-          'key' => 'related_programs',
+          'key' => 'related_campuses',
           'compare' => 'LIKE',
           /**
            * Related programs will be serialized array 
@@ -119,37 +126,18 @@ while (have_posts()) {
       )
     ));
 
-    if ($programRelatedEvents->have_posts()) {
+    if ($campusRelatedEvents->have_posts()) {
       echo '<hr class="section-break">';
-      echo '<h2 class="headline headline--medium">Upcoming ' . get_the_title() . ' Events</h2>';
-      while ($programRelatedEvents->have_posts()) {
-        $programRelatedEvents->the_post();
+      echo '<h2 class="headline headline--medium">Upcoming Events at ' . get_the_title() . '</h2>';
+      while ($campusRelatedEvents->have_posts()) {
+        $campusRelatedEvents->the_post();
         get_template_part('template-parts/event');
       }
     }
     /**
      * REMEMBER TO RESET DATA BETWEEN QUERIES
      */
-    wp_reset_postdata();
-
-    /**
-     * Save array of campus posts to variable
-     */
-    $relatedCampuses = get_field('related_campuses');
-
-    if ($relatedCampuses) {
-      echo '<hr class="section-break">';
-      echo '<h2 class="headline headline--medium">' . get_the_title() . ' is Available at These Campuses</h2>';
-      echo '<ul class="min-list link-list">';
-      foreach ($relatedCampuses as $campus) {
-      ?>
-        <li><a href="<?php echo get_the_permalink($campus) ?>"><?php echo get_the_title($campus) ?></a></li>
-    <?php
-      }
-      echo '</ul>';
-    }
-
-    ?>
+    wp_reset_postdata(); ?>
   </div>
 
 <?php }

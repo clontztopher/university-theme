@@ -1,5 +1,7 @@
 <?php
 
+define('GOOGLE_MAPS_KEY', 'AIzaSyABW3SmLOMqk_vIpi7D0kBlfLoi5ubIZH4');
+
 /**
  * Use 'wp_enqueue_scripts' to add CSS and JS files to theme.
  * 
@@ -10,6 +12,7 @@ function university_files()
 {
   wp_enqueue_style('google-fonts', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
   wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+  wp_enqueue_script('google-map', '//maps.googleapis.com/maps/api/js?key=' . GOOGLE_MAPS_KEY, NULL, '1.0', true);
 
   if (strstr($_SERVER['SERVER_NAME'], 'localhost')) {
     wp_enqueue_script('university-javascript', 'http://localhost:3000/bundled.js', NULL, '1.0', true);
@@ -80,6 +83,17 @@ function university_adjust_queries($query)
     $query->set('orderby', 'title');
     $query->set('order', 'ASC');
   }
+
+  /**
+   * Manipulate Campus Archive query to include all campuses
+   */
+  if (
+    !is_admin() and
+    is_post_type_archive('campuse') and
+    $query->is_main_query()
+  ) {
+    $query->set('posts_per_page', -1);
+  }
 }
 add_action('pre_get_posts', 'university_adjust_queries');
 
@@ -126,7 +140,7 @@ function pageBanner($args = NULL)
  */
 function universityMapKey($api)
 {
-  $api['key'] = 'AIzaSyABW3SmLOMqk_vIpi7D0kBlfLoi5ubIZH4';
+  $api['key'] = GOOGLE_MAPS_KEY;
   return $api;
 }
 
