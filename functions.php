@@ -21,6 +21,14 @@ function university_files()
     wp_enqueue_script('university-javascript', get_theme_file_uri('/bundled-assets/scripts.bc49dbb23afb98cfc0f7.js'), NULL, '1.0', true);
     wp_enqueue_style('our_main_styles', get_theme_file_uri('/bundled-assets/styles.bc49dbb23afb98cfc0f7.css'));
   }
+
+  /**
+   * Adds Javascript object to the page with specified 
+   * script and contains any information entered.
+   */
+  wp_localize_script('university-javascript', 'universityData', array(
+    'root_url' => get_site_url()
+  ));
 }
 add_action('wp_enqueue_scripts', 'university_files');
 
