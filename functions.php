@@ -29,7 +29,9 @@ function university_files()
    * script and contains any information entered.
    */
   wp_localize_script('university-javascript', 'universityData', array(
-    'root_url' => get_site_url()
+    'root_url' => get_site_url(),
+    // Create randomly generated "N(umber used)once" hash for session
+    'nonce' => wp_create_nonce('wp_rest')
   ));
 }
 add_action('wp_enqueue_scripts', 'university_files');
@@ -169,4 +171,55 @@ function university_custom_rest()
 }
 add_action('rest_api_init', 'university_custom_rest');
 
-?>
+/**
+ * Redirect subscriber accounts to home page
+ */
+function redirect_subs()
+{
+  $current_user = wp_get_current_user();
+
+  if (count($current_user->roles) == 1 and $current_user->roles[0] == 'subscriber') {
+    wp_redirect(site_url('/'));
+    exit;
+  }
+}
+add_action('admin_init', 'redirect_subs');
+
+function no_subs_admin_bar()
+{
+  $current_user = wp_get_current_user();
+
+  if (count($current_user->roles) == 1 and $current_user->roles[0] == 'subscriber') {
+    show_admin_bar(false);
+  }
+}
+add_action('wp_loaded', 'no_subs_admin_bar');
+
+/**
+ * Change link on login header
+ */
+function ourHeaderUrl()
+{
+  return esc_url(site_url('/'));
+}
+add_filter('login_headerurl', 'ourHeaderUrl');
+
+/**
+ * New in 2020
+ */
+function ourHeaderTitle()
+{
+  return get_bloginfo('name');
+}
+add_filter('login_headertitle', 'ourHeaderTitle');
+
+/**
+ * Queue up the main CSS for login 
+ * screen so you can update styles
+ */
+function ourLoginCSS()
+{
+  wp_enqueue_style('google-fonts', '//fonts.googleapis.com/css?family=Roboto+Condensed:300,300i,400,400i,700,700i|Roboto:100,300,400,400i,700,700i');
+  wp_enqueue_style('our_main_styles', get_theme_file_uri('/bundled-assets/styles.bc49dbb23afb98cfc0f7.css'));
+}
+add_action('login_enqueue_scripts', 'ourLoginCSS');

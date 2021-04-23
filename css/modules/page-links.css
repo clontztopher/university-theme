@@ -15,14 +15,13 @@
     text-align: center;
     padding: 20px 0;
     background-color: $mainBlue;
-    color: #FFF;
+    color: #fff;
 
-      a {
-        color: #FFF;
-        text-decoration: none;
-        background-color: $mainBlue;
-      }
-
+    a {
+      color: #fff;
+      text-decoration: none;
+      background-color: $mainBlue;
+    }
   }
 
   li {
@@ -47,7 +46,7 @@
     padding: 17px 10px;
     text-decoration: none;
     color: $mainBlue;
-    transition: all .3s;
+    transition: all 0.3s;
   }
 
   li a:hover {
