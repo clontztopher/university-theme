@@ -6,9 +6,10 @@ class MyNotes {
   }
 
   events() {
-    $(".delete-note").on("click", this.deleteNote)
-    $(".edit-note").on("click", this.editNote.bind(this))
-    $(".update-note").on("click", this.updateNote.bind(this))
+    $("#my-notes").on("click", ".delete-note", this.deleteNote)
+    $("#my-notes").on("click", ".edit-note", this.editNote.bind(this))
+    $("#my-notes").on("click", ".update-note", this.updateNote.bind(this))
+    $(".submit-note").on("click", this.createNote.bind(this))
   }
 
   // Methods will go here
@@ -73,6 +74,51 @@ class MyNotes {
       data: ourUpdatedPost,
       success: response => {
         this.makeNoteReadOnly(thisNote)
+        console.log("Congrats")
+        console.log(response)
+      },
+      error: response => {
+        console.log("Sorry")
+        console.log(response)
+      }
+    })
+  }
+
+  createNote(e) {
+
+    /**
+     * Information for creating a new note. Keys will 
+     * match up with post attributes. New notes are 
+     * always posted as "private" through a filter 
+     * in functions.php
+     */
+    var ourNewNote = {
+      "title": $(".new-note-title").val(),
+      "content": $(".new-note-body").val()
+    }
+
+    $.ajax({
+      beforeSend: xhr => {
+        xhr.setRequestHeader("X-WP-Nonce", universityData.nonce)
+      },
+      url: universityData.root_url + "/wp-json/wp/v2/note/",
+      type: "POST",
+      data: ourNewNote,
+      success: response => {
+        /**
+         * When creating a new post with WordPress API, the data 
+         * for that post is returned in the response, if successful.
+         */
+        $(".new-note-title, .new-note-body").val('');
+        $(`
+          <li data-id="${response.id}">
+            <input readonly class="note-title-field" type="text" value="${response.title.raw}">
+            <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
+            <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
+            <textarea readonly class="note-body-field" name="" id="" cols="30" rows="10">${response.content.raw}</textarea>
+            <span class="update-note btn btn--blue btn--small"><i class="fa fa-arrow-right" aria-hidden="true"></i> Save</span>
+          </li>
+        `).prependTo("#my-notes").hide().slideDown();
         console.log("Congrats")
         console.log(response)
       },

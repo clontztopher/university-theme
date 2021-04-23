@@ -223,3 +223,22 @@ function ourLoginCSS()
   wp_enqueue_style('our_main_styles', get_theme_file_uri('/bundled-assets/styles.bc49dbb23afb98cfc0f7.css'));
 }
 add_action('login_enqueue_scripts', 'ourLoginCSS');
+
+
+/**
+ * Force note posts to be private
+ */
+function makeNotePrivate($data)
+{
+
+  if ($data['post_type'] == 'note') {
+    $data['post_title'] = sanitize_text_field($data['post_title']);
+    $data['post_content'] = sanitize_textarea_field($data['post_content']);
+  }
+
+  if ($data['post_type'] == 'note' and $data['post_status'] != 'trash') {
+    $data['post_status'] = "private";
+  }
+  return $data;
+}
+add_filter('wp_insert_post_data', 'makeNotePrivate');

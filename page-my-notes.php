@@ -12,6 +12,13 @@ pageBanner();
 
 <div class="container container--narrow page-section">
 
+  <div class="create-note">
+    <h2 class="headline headline--medium">Create New Note</h2>
+    <input type="text" class="new-note-title" placeholder="Title">
+    <textarea name="" id="" cols="30" rows="10" class="new-note-body" placeholder="Your note here..."></textarea>
+    <span class="submit-note">Create Note</span>
+  </div>
+
   <ul class="min-list link-list" id="my-notes">
     <?php
     $myNotes = new WP_Query(array(
@@ -24,7 +31,7 @@ pageBanner();
       $myNotes->the_post();
     ?>
       <li data-id="<?php the_ID() ?>">
-        <input readonly class="note-title-field" type="text" value="<?php echo esc_attr(get_the_title()) ?>">
+        <input readonly class="note-title-field" type="text" value="<?php echo str_replace("Private: ", "", esc_attr(get_the_title())) ?>">
         <span class="edit-note"><i class="fa fa-pencil" aria-hidden="true"></i> Edit</span>
         <span class="delete-note"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</span>
         <textarea readonly class="note-body-field" name="" id="" cols="30" rows="10"><?php echo esc_attr(wp_strip_all_tags(get_the_content())) ?></textarea>
