@@ -24,6 +24,9 @@ pageBanner();
     $myNotes = new WP_Query(array(
       'post_type' => 'note',
       'posts_per_page' => -1,
+      /**
+       * Make sure the user can only see their own notes
+       */
       'author' => get_current_user_id()
     ));
 
